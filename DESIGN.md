@@ -1,6 +1,5 @@
 # KGI 反作弊合規稽核系統 — 完整技術設計文件
 
-> **Project 6: The Anti-Gaming Fraud Dashboard & Compliance Auditor**
 > 技術棧：Python / Flask · SQLite · HTML + CSS + JavaScript (Vanilla)
 
 ---
