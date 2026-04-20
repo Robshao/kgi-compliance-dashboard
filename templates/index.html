@@ -4,263 +4,286 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>KGI Compliance Auditor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/static/css/style.css" />
 </head>
 <body>
 
-<!-- ── Sidebar ─────────────────────────────────────────────────── -->
-<nav class="sidebar">
-  <div class="sidebar-brand">
-    <span class="brand-icon">🛡</span>
-    <div>
-      <div class="brand-title" data-i18n="brand.title">KGI Compliance</div>
-      <div class="brand-sub" data-i18n="brand.sub">Anti-Gaming Auditor</div>
-    </div>
+<!-- ── Topbar ──────────────────────────────────────────────────────────── -->
+<header class="topbar">
+  <div class="topbar-logo">
+    <div class="topbar-logo-mark">K</div>
+    KGI
   </div>
-  <div class="lang-toggle-wrap">
-    <button id="lang-btn" class="lang-btn" onclick="App.toggleLang()">中文</button>
+  <div class="topbar-divider"></div>
+  <span class="topbar-title" data-i18n="brand.sub">Anti-Gaming Compliance Auditor</span>
+  <div class="topbar-right">
+    <div class="topbar-alert pulse" id="topbar-alert" style="display:none">
+      <span>⚠</span> <span id="topbar-alert-text">HIGH RISK FLAGS PENDING</span>
+    </div>
+    <button id="lang-btn" class="btn btn-outline btn-sm" onclick="App.toggleLang()">中文</button>
   </div>
-  <ul class="nav-links">
-    <li><a href="#" class="nav-link active" data-view="dashboard">
-      <span class="nav-icon">⚠</span> <span data-i18n="nav.inbox">Risk Inbox</span>
-    </a></li>
-    <li><a href="#" class="nav-link" data-view="rules">
-      <span class="nav-icon">⚙</span> <span data-i18n="nav.rules">Rules Engine</span>
-    </a></li>
-    <li><a href="#" class="nav-link" data-view="audit">
-      <span class="nav-icon">📋</span> <span data-i18n="nav.audit">Audit Log</span>
-    </a></li>
-    <li><a href="#" class="nav-link" data-view="simulate">
-      <span class="nav-icon">🧪</span> <span data-i18n="nav.simulate">Simulate Session</span>
-    </a></li>
-  </ul>
-  <div class="sidebar-footer" data-i18n="brand.footer">FSC Compliance System v1.0</div>
-</nav>
+</header>
 
-<!-- ── Main Content ────────────────────────────────────────────── -->
-<main class="main">
+<!-- ── Content Row ─────────────────────────────────────────────────────── -->
+<div class="content-row">
 
-  <!-- ── DASHBOARD VIEW ── -->
-  <section id="view-dashboard" class="view active">
-    <div class="page-header">
-      <div>
-        <h1 data-i18n="page.inbox.title">Risk Inbox</h1>
-        <p class="page-sub" data-i18n="page.inbox.sub">Flagged training sessions requiring review</p>
-      </div>
-      <button class="btn btn-outline" onclick="App.refreshDashboard()" data-i18n="btn.refresh">↻ Refresh</button>
-    </div>
+  <!-- ── Sidebar ───────────────────────────────────────────────────────── -->
+  <nav class="sidebar">
+    <ul class="nav-links">
+      <li><a href="#" class="nav-link active" data-view="dashboard">
+        <span class="nav-icon">⚠</span>
+        <span data-i18n="nav.inbox">Risk Inbox</span>
+        <span class="nav-badge high" id="badge-inbox" style="display:none"></span>
+      </a></li>
+      <li><a href="#" class="nav-link" data-view="rules">
+        <span class="nav-icon">⚙</span>
+        <span data-i18n="nav.rules">Rules Engine</span>
+      </a></li>
+      <li><a href="#" class="nav-link" data-view="audit">
+        <span class="nav-icon">📋</span>
+        <span data-i18n="nav.audit">Audit Log</span>
+      </a></li>
+      <li><a href="#" class="nav-link" data-view="simulate">
+        <span class="nav-icon">🧪</span>
+        <span data-i18n="nav.simulate">Simulate Session</span>
+      </a></li>
+    </ul>
+    <div class="sidebar-footer" data-i18n="brand.footer">FSC Compliance System v1.0</div>
+  </nav>
 
-    <!-- Stats Row -->
-    <div class="stats-row" id="stats-row">
-      <div class="stat-card stat-high">
-        <div class="stat-num" id="stat-high">–</div>
-        <div class="stat-label" data-i18n="stat.high">High Risk</div>
-      </div>
-      <div class="stat-card stat-medium">
-        <div class="stat-num" id="stat-medium">–</div>
-        <div class="stat-label" data-i18n="stat.medium">Medium Risk</div>
-      </div>
-      <div class="stat-card stat-low">
-        <div class="stat-num" id="stat-low">–</div>
-        <div class="stat-label" data-i18n="stat.low">Low Risk</div>
-      </div>
-      <div class="stat-card stat-total">
-        <div class="stat-num" id="stat-total">–</div>
-        <div class="stat-label" data-i18n="stat.total">Total Pending</div>
-      </div>
-    </div>
+  <!-- ── Main Content ──────────────────────────────────────────────────── -->
+  <main class="main">
 
-    <!-- Filters -->
-    <div class="filter-bar">
-      <input id="search-input" type="text" class="search-box" data-i18n-placeholder="filter.search" placeholder="Search agent, module, rule…" />
-      <div class="filter-pills">
-        <button class="pill active" data-severity="" data-i18n="filter.all">All</button>
-        <button class="pill pill-high" data-severity="High" data-i18n="filter.high">High</button>
-        <button class="pill pill-medium" data-severity="Medium" data-i18n="filter.medium">Medium</button>
-        <button class="pill pill-low" data-severity="Low" data-i18n="filter.low">Low</button>
-      </div>
-      <select id="status-filter" class="select-box">
-        <option value="pending" data-i18n-opt="status.pending">Pending</option>
-        <option value="all"     data-i18n-opt="status.allStatuses">All Statuses</option>
-        <option value="approved" data-i18n-opt="status.approved">Approved</option>
-        <option value="voided"   data-i18n-opt="status.voided">Voided</option>
-        <option value="escalated" data-i18n-opt="status.escalated">Escalated</option>
-      </select>
-    </div>
-
-    <!-- Flags Table -->
-    <div class="table-wrap">
-      <table class="data-table" id="flags-table">
-        <thead>
-          <tr>
-            <th data-i18n="th.severity">Severity</th>
-            <th data-i18n="th.agent">Agent</th>
-            <th data-i18n="th.branch">Branch</th>
-            <th data-i18n="th.module">Module</th>
-            <th data-i18n="th.ruleViolated">Rule Violated</th>
-            <th data-i18n="th.flaggedAt">Flagged At</th>
-            <th data-i18n="th.status">Status</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody id="flags-tbody">
-          <tr><td colspan="8" class="loading-cell" data-i18n="msg.loading">Loading…</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
-
-  <!-- ── RULES VIEW ── -->
-  <section id="view-rules" class="view">
-    <div class="page-header">
-      <div>
-        <h1 data-i18n="page.rules.title">Rules Engine</h1>
-        <p class="page-sub" data-i18n="page.rules.sub">Configure detection thresholds</p>
-      </div>
-      <button class="btn btn-primary" onclick="App.openNewRuleModal()" data-i18n="btn.newRule">+ New Rule</button>
-    </div>
-    <div class="table-wrap">
-      <table class="data-table" id="rules-table">
-        <thead>
-          <tr>
-            <th data-i18n="th.ruleName">Rule Name</th>
-            <th data-i18n="th.type">Type</th>
-            <th data-i18n="th.parameters">Parameters</th>
-            <th data-i18n="th.severity">Severity</th>
-            <th data-i18n="th.active">Active</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody id="rules-tbody">
-          <tr><td colspan="6" class="loading-cell" data-i18n="msg.loading">Loading…</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
-
-  <!-- ── AUDIT VIEW ── -->
-  <section id="view-audit" class="view">
-    <div class="page-header">
-      <div>
-        <h1 data-i18n="page.audit.title">Compliance Audit Log</h1>
-        <p class="page-sub" data-i18n="page.audit.sub">Immutable record of all management actions (FSC audit-ready)</p>
-      </div>
-    </div>
-    <div class="table-wrap">
-      <table class="data-table" id="audit-table">
-        <thead>
-          <tr>
-            <th data-i18n="th.auditId">Audit ID</th>
-            <th data-i18n="th.flagId">Flag ID</th>
-            <th data-i18n="th.agent">Agent</th>
-            <th data-i18n="th.module">Module</th>
-            <th data-i18n="th.severity">Severity</th>
-            <th data-i18n="th.actionTaken">Action Taken</th>
-            <th data-i18n="th.manager">Manager</th>
-            <th data-i18n="th.notes">Notes</th>
-            <th data-i18n="th.timestamp">Timestamp</th>
-          </tr>
-        </thead>
-        <tbody id="audit-tbody">
-          <tr><td colspan="9" class="loading-cell" data-i18n="msg.loading">Loading…</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
-
-  <!-- ── SIMULATE VIEW ── -->
-  <section id="view-simulate" class="view">
-    <div class="page-header">
-      <div>
-        <h1 data-i18n="page.simulate.title">Simulate Session</h1>
-        <p class="page-sub" data-i18n="page.simulate.sub">Submit a synthetic training session to test the rules engine</p>
-      </div>
-    </div>
-    <div class="sim-card">
-      <div class="form-grid">
-        <div class="form-group">
-          <label data-i18n="label.agent">Agent</label>
-          <select id="sim-agent" class="select-box"></select>
+    <!-- ── DASHBOARD VIEW ── -->
+    <section id="view-dashboard" class="view active">
+      <div class="page-header">
+        <div>
+          <h1 data-i18n="page.inbox.title">Risk Inbox</h1>
+          <p class="page-sub" data-i18n="page.inbox.sub">COMPLIANCE_MONITOR · Flagged sessions requiring review</p>
         </div>
-        <div class="form-group">
-          <label data-i18n="label.module">Module</label>
-          <select id="sim-module" class="select-box"></select>
+        <button class="btn btn-outline" onclick="App.refreshDashboard()" data-i18n="btn.refresh">↻ Refresh</button>
+      </div>
+
+      <!-- Stats Row -->
+      <div class="stats-row" id="stats-row">
+        <div class="stat-card stat-high">
+          <div class="stat-label" data-i18n="stat.high">High Risk</div>
+          <div class="stat-num" id="stat-high">–</div>
         </div>
-        <div class="form-group">
-          <label data-i18n="label.compTime">Completion Time (seconds)</label>
-          <input id="sim-comp" type="number" value="400" class="text-input" />
+        <div class="stat-card stat-medium">
+          <div class="stat-label" data-i18n="stat.medium">Medium Risk</div>
+          <div class="stat-num" id="stat-medium">–</div>
         </div>
-        <div class="form-group">
-          <label data-i18n="label.quizScore">Quiz Score (%)</label>
-          <input id="sim-score" type="number" value="80" min="0" max="100" class="text-input" />
+        <div class="stat-card stat-low">
+          <div class="stat-label" data-i18n="stat.low">Low Risk</div>
+          <div class="stat-num" id="stat-low">–</div>
         </div>
-        <div class="form-group">
-          <label data-i18n="label.quizTime">Quiz Completion Time (seconds)</label>
-          <input id="sim-qtime" type="number" value="45" class="text-input" />
-        </div>
-        <div class="form-group">
-          <label data-i18n="label.tabSwitches">Tab Switches</label>
-          <input id="sim-tabs" type="number" value="0" class="text-input" />
+        <div class="stat-card stat-total">
+          <div class="stat-label" data-i18n="stat.total">Total Pending</div>
+          <div class="stat-num" id="stat-total">–</div>
         </div>
       </div>
 
-      <div class="sim-presets">
-        <span class="preset-label" data-i18n="preset.label">Quick presets:</span>
-        <button class="btn btn-sm btn-outline" onclick="App.setPreset('speed')" data-i18n="preset.speed">Speed-Clicker</button>
-        <button class="btn btn-sm btn-outline" onclick="App.setPreset('guess')" data-i18n="preset.guess">Blind Guesser</button>
-        <button class="btn btn-sm btn-outline" onclick="App.setPreset('distract')" data-i18n="preset.distract">Distracted</button>
-        <button class="btn btn-sm btn-outline" onclick="App.setPreset('normal')" data-i18n="preset.normal">Normal</button>
+      <!-- Filters -->
+      <div class="filter-bar">
+        <input id="search-input" type="text" class="search-box"
+               data-i18n-placeholder="filter.search"
+               placeholder="Search agent, module, rule…" />
+        <div class="filter-pills">
+          <button class="pill active" data-severity="" data-i18n="filter.all">All</button>
+          <button class="pill pill-high"   data-severity="High"   data-i18n="filter.high">High</button>
+          <button class="pill pill-medium" data-severity="Medium" data-i18n="filter.medium">Medium</button>
+          <button class="pill pill-low"    data-severity="Low"    data-i18n="filter.low">Low</button>
+        </div>
+        <select id="status-filter" class="select-box">
+          <option value="pending"   data-i18n-opt="status.pending">Pending</option>
+          <option value="all"       data-i18n-opt="status.allStatuses">All Statuses</option>
+          <option value="approved"  data-i18n-opt="status.approved">Approved</option>
+          <option value="voided"    data-i18n-opt="status.voided">Voided</option>
+          <option value="escalated" data-i18n-opt="status.escalated">Escalated</option>
+        </select>
       </div>
 
-      <button class="btn btn-primary" onclick="App.simulateSession()" data-i18n="btn.runSim">▶ Run Simulation</button>
-      <div id="sim-result" class="sim-result hidden"></div>
-    </div>
-  </section>
+      <!-- Flags Table -->
+      <div class="table-wrap">
+        <table class="data-table" id="flags-table">
+          <thead>
+            <tr>
+              <th data-i18n="th.severity">Severity</th>
+              <th data-i18n="th.agent">Agent</th>
+              <th data-i18n="th.branch">Branch</th>
+              <th data-i18n="th.module">Module</th>
+              <th data-i18n="th.ruleViolated">Rule Violated</th>
+              <th data-i18n="th.flaggedAt">Flagged At</th>
+              <th data-i18n="th.status">Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="flags-tbody">
+            <tr><td colspan="8" class="loading-cell" data-i18n="msg.loading">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
 
-</main>
+    <!-- ── RULES VIEW ── -->
+    <section id="view-rules" class="view">
+      <div class="page-header">
+        <div>
+          <h1 data-i18n="page.rules.title">Rules Engine</h1>
+          <p class="page-sub" data-i18n="page.rules.sub">DYNAMIC_RULES_CONFIG · Configure detection thresholds</p>
+        </div>
+        <button class="btn btn-primary" onclick="App.openNewRuleModal()" data-i18n="btn.newRule">+ New Rule</button>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table" id="rules-table">
+          <thead>
+            <tr>
+              <th data-i18n="th.ruleName">Rule Name</th>
+              <th data-i18n="th.type">Type</th>
+              <th data-i18n="th.parameters">Parameters</th>
+              <th data-i18n="th.severity">Severity</th>
+              <th data-i18n="th.active">Active</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="rules-tbody">
+            <tr><td colspan="6" class="loading-cell" data-i18n="msg.loading">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
 
-<!-- ── Session Detail Modal ─────────────────────────────────────── -->
+    <!-- ── AUDIT VIEW ── -->
+    <section id="view-audit" class="view">
+      <div class="page-header">
+        <div>
+          <h1 data-i18n="page.audit.title">Compliance Audit Log</h1>
+          <p class="page-sub" data-i18n="page.audit.sub">Immutable record of all management actions (FSC audit-ready)</p>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table" id="audit-table">
+          <thead>
+            <tr>
+              <th data-i18n="th.auditId">Audit ID</th>
+              <th data-i18n="th.flagId">Flag ID</th>
+              <th data-i18n="th.agent">Agent</th>
+              <th data-i18n="th.module">Module</th>
+              <th data-i18n="th.severity">Severity</th>
+              <th data-i18n="th.actionTaken">Action Taken</th>
+              <th data-i18n="th.manager">Manager</th>
+              <th data-i18n="th.notes">Notes</th>
+              <th data-i18n="th.timestamp">Timestamp</th>
+            </tr>
+          </thead>
+          <tbody id="audit-tbody">
+            <tr><td colspan="9" class="loading-cell" data-i18n="msg.loading">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ── SIMULATE VIEW ── -->
+    <section id="view-simulate" class="view">
+      <div class="page-header">
+        <div>
+          <h1 data-i18n="page.simulate.title">Simulate Session</h1>
+          <p class="page-sub" data-i18n="page.simulate.sub">Submit a synthetic training session to test the rules engine</p>
+        </div>
+      </div>
+      <div class="sim-card">
+        <div class="form-grid">
+          <div class="form-group">
+            <label data-i18n="label.agent">Agent</label>
+            <select id="sim-agent" class="select-box"></select>
+          </div>
+          <div class="form-group">
+            <label data-i18n="label.module">Module</label>
+            <select id="sim-module" class="select-box"></select>
+          </div>
+          <div class="form-group">
+            <label data-i18n="label.compTime">Completion Time (seconds)</label>
+            <input id="sim-comp" type="number" value="400" class="text-input" />
+          </div>
+          <div class="form-group">
+            <label data-i18n="label.quizScore">Quiz Score (%)</label>
+            <input id="sim-score" type="number" value="80" min="0" max="100" class="text-input" />
+          </div>
+          <div class="form-group">
+            <label data-i18n="label.quizTime">Quiz Completion Time (seconds)</label>
+            <input id="sim-qtime" type="number" value="45" class="text-input" />
+          </div>
+          <div class="form-group">
+            <label data-i18n="label.tabSwitches">Tab Switches</label>
+            <input id="sim-tabs" type="number" value="0" class="text-input" />
+          </div>
+        </div>
+
+        <div class="sim-presets">
+          <span class="preset-label" data-i18n="preset.label">Quick presets:</span>
+          <button class="btn btn-sm btn-outline" onclick="App.setPreset('speed')"    data-i18n="preset.speed">Speed-Clicker</button>
+          <button class="btn btn-sm btn-outline" onclick="App.setPreset('guess')"    data-i18n="preset.guess">Blind Guesser</button>
+          <button class="btn btn-sm btn-outline" onclick="App.setPreset('distract')" data-i18n="preset.distract">Distracted</button>
+          <button class="btn btn-sm btn-outline" onclick="App.setPreset('normal')"   data-i18n="preset.normal">Normal</button>
+        </div>
+
+        <button class="btn btn-primary" onclick="App.simulateSession()" data-i18n="btn.runSim">▶ Run Simulation</button>
+        <div id="sim-result" class="sim-result hidden"></div>
+      </div>
+    </section>
+
+  </main>
+</div><!-- end .content-row -->
+
+<!-- ── Session Detail Modal ─────────────────────────────────────────────── -->
 <div id="modal-overlay" class="modal-overlay hidden" onclick="App.closeModal(event)">
   <div class="modal" id="modal-box">
-    <button class="modal-close" onclick="App.closeModal()">✕</button>
-
     <div class="modal-header">
-      <div>
-        <h2 id="modal-title">Session Detail</h2>
-        <div id="modal-meta" class="modal-meta"></div>
+      <button class="modal-close" onclick="App.closeModal()">✕</button>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+        <span id="modal-severity-badge" class="severity-badge"></span>
+        <span id="modal-status-badge" class="status-badge"></span>
       </div>
-      <span id="modal-severity-badge" class="severity-badge"></span>
+      <h2 id="modal-title">Session Detail</h2>
+      <div id="modal-meta" class="modal-meta"></div>
     </div>
 
-    <div class="detail-grid" id="modal-overview"></div>
+    <div class="modal-body-wrap">
+      <div class="detail-grid" id="modal-overview"></div>
 
-    <div class="section-block">
-      <h3 class="section-title" data-i18n="modal.ruleViolation">Rule Violation</h3>
-      <div id="modal-rule-info" class="rule-info-box"></div>
-    </div>
+      <div class="section-block">
+        <h3 class="section-title" data-i18n="modal.ruleViolation">Rule Violation</h3>
+        <div id="modal-rule-info" class="rule-info-box"></div>
+      </div>
 
-    <div class="section-block">
-      <h3 class="section-title" data-i18n="modal.forensicTimeline">Forensic Timeline</h3>
-      <div id="modal-timeline" class="timeline"></div>
-    </div>
+      <div class="section-block">
+        <h3 class="section-title" data-i18n="modal.forensicTimeline">Forensic Activity Timeline</h3>
+        <div id="modal-timeline" class="timeline"></div>
+      </div>
 
-    <div class="section-block" id="audit-history-block" style="display:none">
-      <h3 class="section-title" data-i18n="modal.resolutionHistory">Resolution History</h3>
-      <div id="modal-audit-history"></div>
+      <div class="section-block" id="audit-history-block" style="display:none">
+        <h3 class="section-title" data-i18n="modal.resolutionHistory">Resolution History</h3>
+        <div id="modal-audit-history"></div>
+      </div>
     </div>
 
     <div class="resolution-bar" id="resolution-bar">
-      <div class="form-group" style="flex:1">
+      <div class="form-group" style="flex:1;min-width:140px">
         <label data-i18n="modal.manager">Manager</label>
-        <select id="resolve-manager" class="select-box"></select>
+        <select id="resolve-manager" class="select-box" style="width:100%"></select>
       </div>
-      <div class="form-group" style="flex:2">
+      <div class="form-group" style="flex:2;min-width:200px">
         <label data-i18n="modal.justification">Justification Notes</label>
-        <input id="resolve-notes" type="text" class="text-input" data-i18n-placeholder="modal.justificationPlaceholder" placeholder="Brief notes for FSC audit trail…" />
+        <input id="resolve-notes" type="text" class="text-input"
+               data-i18n-placeholder="modal.justificationPlaceholder"
+               placeholder="Brief notes for FSC audit trail…" />
       </div>
       <div class="resolve-actions">
-        <button class="btn btn-success"  onclick="App.resolveFlag('approve')"  data-i18n="btn.approve">✔ Approve (False Alarm)</button>
-        <button class="btn btn-warning"  onclick="App.resolveFlag('void')"     data-i18n="btn.void">⟳ Void &amp; Require Retake</button>
+        <button class="btn btn-success"  onclick="App.resolveFlag('approve')"  data-i18n="btn.approve">✔ Approve</button>
+        <button class="btn btn-warning"  onclick="App.resolveFlag('void')"     data-i18n="btn.void">⟳ Void &amp; Retake</button>
         <button class="btn btn-danger"   onclick="App.resolveFlag('escalate')" data-i18n="btn.escalate">↑ Escalate to HR</button>
       </div>
     </div>
@@ -268,42 +291,44 @@
   </div>
 </div>
 
-<!-- ── Rule Edit Modal ──────────────────────────────────────────── -->
+<!-- ── Rule Edit Modal ──────────────────────────────────────────────────── -->
 <div id="rule-modal-overlay" class="modal-overlay hidden" onclick="App.closeRuleModal(event)">
-  <div class="modal modal-sm" id="rule-modal-box">
+  <div class="modal modal-sm" id="rule-modal-box" style="position:relative">
     <button class="modal-close" onclick="App.closeRuleModal()">✕</button>
-    <h2 id="rule-modal-title" data-i18n="modal.editRule">Edit Rule</h2>
-    <input type="hidden" id="edit-rule-id" />
-    <div class="form-group">
-      <label data-i18n="label.ruleName">Rule Name</label>
-      <input id="edit-rule-name" type="text" class="text-input" />
-    </div>
-    <div class="form-group">
-      <label data-i18n="label.severityLevel">Severity Level</label>
-      <select id="edit-rule-severity" class="select-box">
-        <option value="High"   data-i18n-opt="sev.High">High</option>
-        <option value="Medium" data-i18n-opt="sev.Medium">Medium</option>
-        <option value="Low"    data-i18n-opt="sev.Low">Low</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label data-i18n="label.parameters">Parameters (JSON)</label>
-      <textarea id="edit-rule-params" rows="4" class="text-input textarea"></textarea>
-    </div>
-    <div class="form-group">
-      <label data-i18n="label.description">Description</label>
-      <textarea id="edit-rule-desc" rows="3" class="text-input textarea"></textarea>
-    </div>
-    <div class="form-group">
-      <label data-i18n="label.active">Active</label>
-      <select id="edit-rule-active" class="select-box">
-        <option value="1" data-i18n-opt="opt.yes">Yes</option>
-        <option value="0" data-i18n-opt="opt.no">No</option>
-      </select>
-    </div>
-    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px">
-      <button class="btn btn-outline" onclick="App.closeRuleModal()" data-i18n="btn.cancel">Cancel</button>
-      <button class="btn btn-primary" onclick="App.saveRule()" data-i18n="btn.saveRule">Save Rule</button>
+    <div style="padding:24px">
+      <h2 id="rule-modal-title" style="margin-bottom:20px" data-i18n="modal.editRule">Edit Rule</h2>
+      <input type="hidden" id="edit-rule-id" />
+      <div class="form-group" style="margin-bottom:14px">
+        <label data-i18n="label.ruleName">Rule Name</label>
+        <input id="edit-rule-name" type="text" class="text-input" />
+      </div>
+      <div class="form-group" style="margin-bottom:14px">
+        <label data-i18n="label.severityLevel">Severity Level</label>
+        <select id="edit-rule-severity" class="select-box" style="width:100%">
+          <option value="High"   data-i18n-opt="sev.High">High</option>
+          <option value="Medium" data-i18n-opt="sev.Medium">Medium</option>
+          <option value="Low"    data-i18n-opt="sev.Low">Low</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin-bottom:14px">
+        <label data-i18n="label.parameters">Parameters (JSON)</label>
+        <textarea id="edit-rule-params" rows="4" class="text-input textarea"></textarea>
+      </div>
+      <div class="form-group" style="margin-bottom:14px">
+        <label data-i18n="label.description">Description</label>
+        <textarea id="edit-rule-desc" rows="3" class="text-input textarea"></textarea>
+      </div>
+      <div class="form-group" style="margin-bottom:20px">
+        <label data-i18n="label.active">Active</label>
+        <select id="edit-rule-active" class="select-box" style="width:100%">
+          <option value="1" data-i18n-opt="opt.yes">Yes</option>
+          <option value="0" data-i18n-opt="opt.no">No</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button class="btn btn-outline" onclick="App.closeRuleModal()" data-i18n="btn.cancel">Cancel</button>
+        <button class="btn btn-primary" onclick="App.saveRule()"       data-i18n="btn.saveRule">Save Rule</button>
+      </div>
     </div>
   </div>
 </div>
